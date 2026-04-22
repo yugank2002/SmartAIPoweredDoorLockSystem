@@ -1,11 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply bg-gray-50;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    @apply bg-slate-50;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   }
 }
 
@@ -16,7 +18,7 @@
   }
 
   .btn-primary {
-    @apply btn bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800;
+    @apply btn bg-slate-900 text-white hover:bg-slate-800 active:bg-slate-700;
   }
 
   .btn-logout {
@@ -24,7 +26,7 @@
   }
 
   .btn-secondary {
-    @apply btn bg-gray-200 text-gray-800 hover:bg-gray-300 active:bg-gray-400;
+    @apply btn bg-slate-200 text-slate-800 hover:bg-slate-300 active:bg-slate-400;
   }
 
   .btn-danger {
@@ -33,11 +35,11 @@
 
   /* Form Elements */
   .form-input {
-    @apply w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200;
+    @apply w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all duration-200;
   }
 
   .form-label {
-    @apply block text-gray-700 font-semibold text-sm mb-2;
+    @apply block text-slate-700 font-semibold text-sm mb-2;
   }
 
   /* Messages */
@@ -51,7 +53,7 @@
 
   /* Cards */
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200;
+    @apply bg-white rounded-lg shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow duration-200;
   }
 
   .card-gradient {
@@ -64,6 +66,6 @@
   }
 
   .input-icon {
-    @apply absolute left-4 text-gray-400 text-lg;
+    @apply absolute left-4 text-slate-400 text-lg;
   }
 }

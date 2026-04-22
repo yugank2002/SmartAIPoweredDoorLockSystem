@@ -18,6 +18,7 @@ const Dashboard = () => {
   const [uploading, setUploading] = useState(false)
   const [visitorError, setVisitorError] = useState('')
   const [history, setHistory] = useState([])
+  const [activeSection, setActiveSection] = useState('overview')
 
   const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')
 
@@ -95,279 +96,431 @@ const Dashboard = () => {
     }
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14">
-            <div className="flex items-center gap-2">
-              <span className="text-xl">🔐</span>
-              <h1 className="text-lg font-bold text-gray-900">Smart Lock</h1>
+  const renderIcon = (iconName) => {
+    const iconClasses = "w-5 h-5 text-slate-600"
+    switch (iconName) {
+      case 'dashboard':
+        return (
+          <svg className={iconClasses} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        )
+      case 'people':
+        return (
+          <svg className={iconClasses} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+          </svg>
+        )
+      case 'history':
+        return (
+          <svg className={iconClasses} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        )
+      case 'lock':
+        return (
+          <svg className={iconClasses} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        )
+      default:
+        return <span className="text-lg">•</span>
+    }
+  }
+
+  const sidebarItems = [
+    { id: 'overview', label: 'Overview', icon: 'dashboard' },
+    { id: 'visitors', label: 'Visitors', icon: 'people' },
+    { id: 'history', label: 'Access History', icon: 'history' },
+  ]
+
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'overview':
+        return (
+          <div className="space-y-8">
+            {/* Welcome Section */}
+            <div className="bg-gradient-to-r from-slate-900 to-slate-700 rounded-xl p-8 text-white">
+              <h2 className="text-3xl font-bold mb-2">
+                Welcome back, {user?.name}!
+              </h2>
+              <p className="text-slate-200">Manage your smart lock visitors and access control system</p>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:block text-right text-sm">
-                <p className="font-medium text-gray-900">{user?.name}</p>
-                <p className="text-xs text-gray-500">{user?.email}</p>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-slate-600 text-sm font-medium">Total Visitors</p>
+                    <p className="text-3xl font-bold text-slate-900 mt-2">{visitors.length}</p>
+                  </div>
+                  <div className="text-slate-400">
+                    {renderIcon('people')}
+                  </div>
+                </div>
               </div>
-              <button
-                onClick={handleLogout}
-                className="btn-logout px-4 py-1.5"
-              >
-                Logout
-              </button>
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-slate-600 text-sm font-medium">Access Attempts</p>
+                    <p className="text-3xl font-bold text-slate-900 mt-2">{history.length}</p>
+                  </div>
+                  <div className="text-slate-400">
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-slate-600 text-sm font-medium">Rejected Access</p>
+                    <p className="text-3xl font-bold text-slate-900 mt-2">{history.filter(h => h.decision === 'rejected').length}</p>
+                  </div>
+                  <div className="text-slate-400">
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-slate-600 text-sm font-medium">System Status</p>
+                    <p className="text-xl font-bold text-green-600 mt-2">Active</p>
+                  </div>
+                  <div className="text-slate-400">
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tech Stack */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h3 className="text-xl font-bold text-slate-900 mb-6">Technology Stack</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center p-4 bg-slate-50 rounded-lg">
+                  <p className="text-3xl mb-2">⚛️</p>
+                  <p className="text-sm text-slate-600 font-medium">Frontend</p>
+                  <p className="font-bold text-slate-700">React + Vite</p>
+                </div>
+                <div className="text-center p-4 bg-slate-50 rounded-lg">
+                  <p className="text-3xl mb-2">🎨</p>
+                  <p className="text-sm text-slate-600 font-medium">Styling</p>
+                  <p className="font-bold text-slate-700">Tailwind CSS</p>
+                </div>
+                <div className="text-center p-4 bg-slate-50 rounded-lg">
+                  <p className="text-3xl mb-2">🟢</p>
+                  <p className="text-sm text-slate-600 font-medium">Backend</p>
+                  <p className="font-bold text-slate-700">Node + Express</p>
+                </div>
+                <div className="text-center p-4 bg-slate-50 rounded-lg">
+                  <p className="text-3xl mb-2">🗄️</p>
+                  <p className="text-sm text-slate-600 font-medium">Database</p>
+                  <p className="font-bold text-slate-700">MongoDB</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      case 'visitors':
+        return (
+          <div className="space-y-8">
+            {/* Header */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">Visitor Management</h2>
+                  <p className="text-slate-600 mt-1">Add and manage your door access visitors</p>
+                </div>
+                <div className="text-slate-400">
+                  {renderIcon('lock')}
+                </div>
+              </div>
+            </div>
+
+            {/* Add Visitor Form */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h3 className="text-xl font-bold text-slate-900 mb-6">Add New Visitor</h3>
+              <form onSubmit={handleAddVisitor} className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Visitor Name</label>
+                  <input
+                    type="text"
+                    value={visitorName}
+                    onChange={(e) => setVisitorName(e.target.value)}
+                    placeholder="Enter visitor's full name"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Photo</label>
+                  <input
+                    id="visitor-photo-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg transition-colors disabled:opacity-70 h-11"
+                  disabled={uploading}
+                >
+                  {uploading ? 'Uploading...' : 'Add Visitor'}
+                </button>
+              </form>
+
+              {visitorError && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-red-800 font-medium">{visitorError}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Visitors Gallery */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h3 className="text-xl font-bold text-slate-900 mb-6">Your Visitors ({visitors.length})</h3>
+              {visitors.length === 0 ? (
+                <div className="text-center py-12 bg-slate-50 rounded-xl">
+                  <div className="text-5xl mb-3">
+                    <svg className="w-16 h-16 mx-auto text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                    </svg>
+                  </div>
+                  <p className="text-slate-600 text-lg">No visitors added yet</p>
+                  <p className="text-slate-500 text-sm mt-2">Add your first visitor to get started</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {visitors.map(v => (
+                    <div key={v._id} className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={`${API_BASE}${v.face_url}`}
+                          alt={v.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="p-4">
+                        <h5 className="font-bold text-slate-900 text-lg">{v.name}</h5>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Added {new Date(v.createdAt).toLocaleDateString()}
+                        </p>
+                        <button
+                          onClick={() => handleDeleteVisitor(v._id, v.name)}
+                          className="mt-4 w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-sm font-semibold transition-colors"
+                        >
+                          <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Delete Visitor
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      case 'history':
+        return (
+          <div className="space-y-8">
+            {/* Header */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">Access History</h2>
+                  <p className="text-slate-600 mt-1">View all door lock and unlock attempts</p>
+                </div>
+                <div className="text-slate-400">
+                  {renderIcon('history')}
+                </div>
+              </div>
+            </div>
+
+            {/* History Table */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              {history.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-5xl mb-3">
+                    <svg className="w-16 h-16 mx-auto text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <p className="text-slate-600 text-lg">No access attempts yet</p>
+                  <p className="text-slate-500 text-sm mt-2">History will appear here when visitors try to access</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-slate-50 border-b border-slate-200">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Visitor</th>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Timestamp</th>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Decision</th>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Captured Image</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {history.map(h => (
+                        <tr key={h._id} className="hover:bg-slate-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg overflow-hidden ${
+                                h.decision === 'allowed' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                              }`}>
+                                {h.visitorImageUrl ? (
+                                  <img
+                                    src={`${API_BASE}${h.visitorImageUrl}`}
+                                    alt={h.visitorName}
+                                    className="w-full h-full object-cover rounded-full"
+                                  />
+                                ) : (
+                                  h.decision === 'allowed' ? '✅' : '❌'
+                                )}
+                              </div>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-slate-900">{h.visitorName}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                            {new Date(h.timestamp).toLocaleString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              h.decision === 'allowed' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {h.decision === 'allowed' ? 'Allowed' : 'Rejected'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <img
+                              src={`${API_BASE}${h.photoUrl}`}
+                              alt="Captured"
+                              className="w-16 h-16 object-cover rounded-lg border border-slate-200"
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      default:
+        return null
+    }
+  }
+
+  return (
+    <div className="h-screen bg-slate-50 flex overflow-hidden">
+      {/* Sidebar */}
+      <div className="w-64 bg-white shadow-lg border-r border-slate-200 flex flex-col overflow-hidden">
+        {/* Logo */}
+        <div className="p-6 border-b border-slate-200 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center">
+              {renderIcon('lock')}
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-slate-900">Smart Lock</h1>
+              <p className="text-xs text-slate-500">Dashboard</p>
             </div>
           </div>
         </div>
-      </nav>
+
+        {/* Navigation */}
+        <nav className="flex-1 p-4 overflow-y-auto">
+          <ul className="space-y-2">
+            {sidebarItems.map(item => (
+              <li key={item.id}>
+                <button
+                  onClick={() => setActiveSection(item.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                    activeSection === item.id
+                      ? 'bg-slate-100 text-slate-900 border-r-2 border-slate-900'
+                      : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  {renderIcon(item.icon)}
+                  <span className="font-medium">{item.label}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* User Info & Logout */}
+        <div className="p-4 border-t border-slate-200 flex-shrink-0">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 bg-slate-300 rounded-full flex items-center justify-center">
+              <span className="text-sm font-medium text-slate-700">
+                {user?.name?.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-slate-900 truncate">{user?.name}</p>
+              <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span className="font-medium">Logout</span>
+          </button>
+        </div>
+      </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        {/* Welcome Section */}
-        <div className="card bg-white mb-8 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full -mr-20 -mt-20"></div>
-          <div className="relative z-10">
-            <h2 className="text-4xl font-bold text-gray-800 mb-2">
-              👋 Welcome back, {user?.name}!
-            </h2>
-            <p className="text-gray-600">Manage your smart lock visitors and access control</p>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="card-gradient from-blue-50 to-indigo-50 border-blue-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-semibold">Total Visitors</p>
-                <p className="text-4xl font-bold text-blue-600 mt-2">{visitors.length}</p>
-              </div>
-              <div className="text-5xl">👥</div>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Bar */}
+        <header className="bg-white shadow-sm border-b border-slate-200 px-8 py-4 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-slate-900 capitalize">{activeSection}</h1>
+            <div className="text-sm text-slate-500">
+              {new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
             </div>
           </div>
+        </header>
 
-          <div className="card-gradient from-green-50 to-emerald-50 border-green-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-semibold">Access Attempts</p>
-                <p className="text-4xl font-bold text-green-600 mt-2">{history.length}</p>
-              </div>
-              <div className="text-5xl">🔓</div>
-            </div>
-          </div>
-
-          <div className="card-gradient from-red-50 to-pink-50 border-red-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-semibold">Rejected Access</p>
-                <p className="text-4xl font-bold text-red-600 mt-2">{history.filter(h => h.decision === 'rejected').length}</p>
-              </div>
-              <div className="text-5xl">❌</div>
-            </div>
-          </div>
-
-          <div className="card-gradient from-purple-50 to-violet-50 border-purple-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-semibold">System Status</p>
-                <p className="text-2xl font-bold text-purple-600 mt-2">Active</p>
-              </div>
-              <div className="text-5xl">✅</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Tech Stack */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="card text-center">
-            <p className="text-3xl mb-2">⚛️</p>
-            <p className="text-sm text-gray-600">Frontend</p>
-            <p className="font-bold text-blue-600">React + Vite</p>
-          </div>
-          <div className="card text-center">
-            <p className="text-3xl mb-2">🎨</p>
-            <p className="text-sm text-gray-600">Styling</p>
-            <p className="font-bold text-blue-600">Tailwind CSS</p>
-          </div>
-          <div className="card text-center">
-            <p className="text-3xl mb-2">🟢</p>
-            <p className="text-sm text-gray-600">Backend</p>
-            <p className="font-bold text-blue-600">Node + Express</p>
-          </div>
-          <div className="card text-center">
-            <p className="text-3xl mb-2">🗄️</p>
-            <p className="text-sm text-gray-600">Database</p>
-            <p className="font-bold text-blue-600">MongoDB</p>
-          </div>
-        </div>
-
-        {/* Visitors Section */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-6 pb-6 border-b-2 border-gray-200">
-            <div>
-              <h3 className="text-3xl font-bold text-gray-800">👥 Visitor Management</h3>
-              <p className="text-gray-600 text-sm mt-1">Add and manage your door access visitors</p>
-            </div>
-            <div className="text-5xl">🚪</div>
-          </div>
-
-          {/* Add Visitor Form */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-8 border-2 border-blue-200">
-            <h4 className="text-xl font-bold text-gray-800 mb-4">➕ Add New Visitor</h4>
-            <form onSubmit={handleAddVisitor} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-              <div>
-                <label className="form-label">👤 Visitor Name</label>
-                <input
-                  type="text"
-                  value={visitorName}
-                  onChange={(e) => setVisitorName(e.target.value)}
-                  placeholder="Enter visitor's full name"
-                  className="form-input"
-                />
-              </div>
-
-              <div>
-                <label className="form-label">📸 Photo</label>
-                <input
-                  id="visitor-photo-input"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 transition-all"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="btn-primary w-full disabled:opacity-70"
-                disabled={uploading}
-              >
-                {uploading ? '⏳ Uploading...' : '📤 Add Visitor'}
-              </button>
-            </form>
-
-            {visitorError && (
-              <div className="error-message mt-4">
-                <span className="font-bold">❌</span> {visitorError}
-              </div>
-            )}
-          </div>
-
-          {/* Visitors Gallery */}
-          <div>
-            <h4 className="text-xl font-bold text-gray-800 mb-4">📋 Your Visitors ({visitors.length})</h4>
-            {visitors.length === 0 ? (
-              <div className="text-center py-12 bg-gray-50 rounded-xl">
-                <p className="text-5xl mb-3">📭</p>
-                <p className="text-gray-600 text-lg">No visitors added yet</p>
-                <p className="text-gray-500 text-sm mt-2">Add your first visitor to get started</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-                {visitors.map(v => (
-                  <div key={v._id} className="card hover:scale-105 transition-transform duration-300 group">
-                    <div className="relative mb-4 overflow-hidden rounded-lg">
-                      <img
-                        src={`${API_BASE}${v.face_url}`}
-                        alt={v.name}
-                        className="h-40 w-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                    </div>
-                    <h5 className="font-bold text-gray-800 text-lg">{v.name}</h5>
-                    <p className="text-xs text-gray-500 mt-1">
-                      ⏰ {new Date(v.createdAt).toLocaleDateString()}
-                    </p>
-                    <button
-                      onClick={() => handleDeleteVisitor(v._id, v.name)}
-                      className="mt-4 w-full bg-gradient-to-r from-red-500 to-red-600 hover:shadow-lg text-white py-2 px-2 rounded-lg text-sm font-semibold transition-all hover:-translate-y-0.5 active:translate-y-0"
-                    >
-                      🗑️ Delete Visitor
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* History Section */}
-        <div className="card mt-8">
-          <div className="flex items-center justify-between mb-6 pb-6 border-b-2 border-gray-200">
-            <div>
-              <h3 className="text-3xl font-bold text-gray-800">📜 Access History</h3>
-              <p className="text-gray-600 text-sm mt-1">View all door lock and unlock attempts</p>
-            </div>
-            <div className="text-5xl">🕐</div>
-          </div>
-
-          {history.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-xl">
-              <p className="text-5xl mb-3">📭</p>
-              <p className="text-gray-600 text-lg">No access attempts yet</p>
-              <p className="text-gray-500 text-sm mt-2">History will appear here when visitors try to access</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full bg-white rounded-xl shadow-sm overflow-hidden">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visitor</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Decision</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Captured Image</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {history.map(h => (
-                    <tr key={h._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg overflow-hidden ${
-                            h.decision === 'allowed' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                          }`}>
-                            {h.visitorImageUrl ? (
-                              <img
-                                src={`${API_BASE}${h.visitorImageUrl}`}
-                                alt={h.visitorName}
-                                className="w-full h-full object-cover rounded-full"
-                              />
-                            ) : (
-                              h.decision === 'allowed' ? '✅' : '❌'
-                            )}
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{h.visitorName}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(h.timestamp).toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          h.decision === 'allowed' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {h.decision === 'allowed' ? '🔓 Allowed' : '🔒 Rejected'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <img
-                          src={`${API_BASE}${h.photoUrl}`}
-                          alt="Captured"
-                          className="w-16 h-16 object-cover rounded-lg border"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </main>
+        {/* Content Area */}
+        <main className="flex-1 p-8 overflow-y-auto">
+          {renderContent()}
+        </main>
+      </div>
     </div>
   )
 }
