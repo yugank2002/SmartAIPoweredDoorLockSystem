@@ -5,6 +5,7 @@ const multer = require('multer');
 const axios = require('axios');
 const FormData = require('form-data');
 const Visitor = require('../models/Visitor');
+const History = require('../models/History');
 
 const router = express.Router();
 

@@ -32,9 +32,15 @@ app.use(express.static(path.join(__dirname, 'static')));
 // Routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
+const visitorsRoutes = require('./routes/visitors');
+const historyRoutes = require('./routes/history');
+const verifyRoutes = require('./routes/verify');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/visitors', visitorsRoutes);
+app.use('/api/history', historyRoutes);
+app.use('/verify', verifyRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
