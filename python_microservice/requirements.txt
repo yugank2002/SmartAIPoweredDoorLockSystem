@@ -4,5 +4,6 @@ Pillow
 numpy
 deepface
 flask
+flask-cors
 pandas
 tf-keras

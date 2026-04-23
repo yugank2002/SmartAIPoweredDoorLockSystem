@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { visitorsAPI, historyAPI } from '../api/api'
+import LiveFeed from './LiveFeed'
 
 const Dashboard = () => {
   const { user, logout } = useAuth()
@@ -123,6 +124,12 @@ const Dashboard = () => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
         )
+      case 'camera':
+        return (
+          <svg className={iconClasses} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        )
       default:
         return <span className="text-lg">•</span>
     }
@@ -132,6 +139,7 @@ const Dashboard = () => {
     { id: 'overview', label: 'Overview', icon: 'dashboard' },
     { id: 'visitors', label: 'Visitors', icon: 'people' },
     { id: 'history', label: 'Access History', icon: 'history' },
+    { id: 'live-feed', label: 'Live Feed', icon: 'camera' },
   ]
 
   const renderContent = () => {
@@ -312,11 +320,16 @@ const Dashboard = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {visitors.map(v => (
                     <div key={v._id} className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
-                      <div className="relative h-48 overflow-hidden">
+                      <div className="relative h-48 overflow-hidden bg-slate-100 flex items-center justify-center">
                         <img
                           src={`${API_BASE}${v.face_url}`}
                           alt={v.name}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            console.error('Failed to load visitor image:', `${API_BASE}${v.face_url}`, e)
+                            e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"%3E%3Cpath stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/%3E%3C/svg%3E'
+                            e.target.className = 'w-12 h-12 text-slate-300'
+                          }}
                         />
                       </div>
                       <div className="p-4">
@@ -393,6 +406,10 @@ const Dashboard = () => {
                                     src={`${API_BASE}${h.visitorImageUrl}`}
                                     alt={h.visitorName}
                                     className="w-full h-full object-cover rounded-full"
+                                    onError={(e) => {
+                                      console.error('Failed to load visitor thumbnail:', `${API_BASE}${h.visitorImageUrl}`, e)
+                                      e.target.style.display = 'none'
+                                    }}
                                   />
                                 ) : (
                                   h.decision === 'allowed' ? '✅' : '❌'
@@ -420,6 +437,10 @@ const Dashboard = () => {
                               src={`${API_BASE}${h.photoUrl}`}
                               alt="Captured"
                               className="w-16 h-16 object-cover rounded-lg border border-slate-200"
+                              onError={(e) => {
+                                console.error('Failed to load history photo:', `${API_BASE}${h.photoUrl}`, e)
+                                e.target.style.display = 'none'
+                              }}
                             />
                           </td>
                         </tr>
@@ -431,6 +452,8 @@ const Dashboard = () => {
             </div>
           </div>
         )
+      case 'live-feed':
+        return <LiveFeed />
       default:
         return null
     }
